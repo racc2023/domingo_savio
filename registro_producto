@@ -1,0 +1,194 @@
+<?php
+session_name("SistemaWeb"); // Nombre de la sesión del navegador
+session_start(); // Inicia sesión
+setlocale(LC_ALL, 'Spanish_Traditional_Sort'); // Configura la web en español
+date_default_timezone_set('Etc/GMT+4'); // Configura la zona horaria de Bolivia //hora de bolivia
+$GLOBALS['con']=conectate(); // Llama a la función conectate y guarda la conexión en una variable global
+
+function conectate() {
+    $elservidor = "localhost";
+    $elusuario = "root";
+    $lacontrasena = "";
+    $labasededatos = "bd_inventario";
+    $conx=conectar($elservidor, $elusuario, $lacontrasena, $labasededatos);
+    return $conx; // Retorna la conexión
+}
+
+function conectar($servidor, $usuario, $contrasena, $nombrebd) 
+{
+    $conx = mysqli_connect($servidor, $usuario, $contrasena, $nombrebd); // Conecta a la base de datos
+    mysqli_set_charset($conx,"utf8"); // Características para soportar caracteres latinos como ñ y acentos
+    if (mysqli_error($conx)) 
+        echo("<script language='javascript'>
+        alert('Error al conectarse al servidor de base de datos..!');
+        location.href ='index.php';
+        </script>"); // Valida si la conexión es correcta y muestra un mensaje de error si no lo es
+    
+    return $conx; // Retorna la conexión
+
+}
+?>
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Sistema Web</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="">
+
+    <style>
+        body {
+            padding-top: 5rem;
+
+            
+        }
+        .starter-template {
+            padding: 3rem 1.5rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body style="background-color: gray; ">
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="index.php">Electronica</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault"
+            aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="index.php">Inicio<span class="sr-only">(actual)</span></a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="dropdown03"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Registros</a>
+                    <div class="dropdown-menu" aria-labelledby="dropdown03">
+                        <a class="dropdown-item" href="registro_cliente.php">Registros Clientes</a>
+
+                        <a class="dropdown-item" href="registro_producto.php">Registros Productos</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="dropdown02"
+                        data-toggle="dropdown" aria-haspopup="true" aria expanded="false">Reportes</a>
+                    <div class="dropdown-menu" aria-labelledby="dropdown02">
+                        <a class="dropdown-item" href="listado-clientes.php">Reporte Clientes</a>
+
+                        <a class="dropdown-item" href="listado-productos.php">Reporte Productos</a>
+                    </div>
+                </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0">
+                <input class="form-control mr-sm-2" type="text" placeholder="Buscar" aria-label="Buscar">
+                <button class="btn btn-outline-success my-2 my-0" type="submit">Buscar</button>
+            </form>
+        </div>
+    </nav>
+    <main role="main" class="container">
+        <div class="starter-template">
+            <h1>Registro de Productos</h1>
+            <p class="lead">Formulario de registro de Productos.</p>
+        </div>
+            <div class="row">
+                <div class="col-12">
+                    <form class="form-control" method="post">
+                        <?php
+                        if (!isset($_POST['boton'])) {
+                            //si el boton no esta definido ponemos variables en 0 o vacio
+                          $_POST['nompro']="";
+                          $_POST['marcapro']="";
+                          $_POST['cantpro']="";
+                          $_POST['preciopro']="";
+                        } else {
+                            //si el boton esta definido
+                            if ($_POST['boton']==="Guardar Nuevo") {
+                                // si el boton que se apreto dice Guardar Nuevo
+                                //avance del 26 de octubre 2023..
+
+                                $consulta="INSERT INTO tb_productos (nom_producto, marca_producto, cant_producto, precio_producto) VALUES ('".$_POST['nompro']."', '".$_POST['marcapro']."', '".$_POST['cantpro']."', '".$_POST['preciopro']."');";
+                                if ($resp=mysqli_query($GLOBALS['con'],$consulta)) {
+                                   echo "FELICIDADDES, Los datos del producto fueron gurdados de forma satisfactoria.";
+                                   $_POST['nompro']="";
+                                   $_POST['marcapro']="";
+                                   $_POST['cantpro']="";
+                                   $_POST['preciopro']="";
+                                } else {
+                                    echo "ERROR: Fallo al guardar productos.";
+                                    echo "ERROR: " . mysqli_error($GLOBALS['con']);
+                                }
+
+                            }
+                        }
+                        ?>
+                        <div class="row h-100 justify-content-center align-items-center">
+                            <div class="col-md-6 align-center">
+                                <div class="card card-primary">
+                                    <div class="card-header">
+                                        <h3 class="card-title">PRODUCTOS</h3>
+                                    </div>
+
+                                    <form class="form-group" method="post">
+                                        <div class="card-body">
+                                            <div class="form-group">
+                                                <label for="nompro">Producto</label>
+                                                <input type="text" class="form-control" id="nompro" name="nompro" placeholder="Producto" value="<?php echo $_POST['nompro']; ?>" required autofocus>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="narcapro">Marca</label>
+                                                <input type="text" class="form-control" id="marcapro" name="marcapro" placeholder="Marca" value="<?php echo $_POST['marcapro']; ?>" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="cantpro">CANTIDAD</label>
+                                                <input type="number" step="1" min="0" max="99999999" class="form-control" id="cantpro" name="cantpro" placeholder="Cantidad" value="<?php echo $_POST['cantpro'];?>" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="preciopro">PRECIO</label>
+                                                <input type="number" step="1" min="0" max="99999999" class="form-control" id="preciopro" name="preciopro" placeholder="PRECIO" value="<?php echo $_POST['preciopro'];?>" required>
+                                            </div>
+
+
+                                        </div>
+                                        <div class="card-footer">
+                                            <input type="submit" class="btn btn-lg btn-success btn-block" name="boton" id="boton" value="Guardar Nuevo">
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+    </main>
+
+
+<!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script>
+        if (typeof jQuery === 'undefined') {
+            document.write('<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"><\/script>');
+        }
+    </script>
+    <script src="https://getbootstrap.com/docs/4.0/assets/js/vendor/popper.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.0/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+					
